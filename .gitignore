@@ -1,0 +1,44 @@
+# --- Local toolchain / IDE ---
+tools/
+.vstudio/
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+
+# --- RASM / assemble ---
+*.lst
+*.sym
+*.map
+*.equ
+*.err
+*.tmp
+*~
+
+# --- ROM dumps (do not publish third-party firmware) ---
+*.ROM
+*.rom
+PICOCPC.ROM
+
+# --- OS / editor ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+ehthumbs.db
+
+# --- Backups ---
+*.bak
+*.old
+*.orig
+*.swp
+
+# --- Python helpers if any ---
+__pycache__/
+*.pyc
+
+# Old vgmxp history kept locally
+.git.vgmxp/
+
+# Compiled binaries in build/ (*.BIN) stay tracked.
