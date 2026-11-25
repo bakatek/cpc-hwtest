@@ -1,4 +1,4 @@
-# Suite de tests matériels Amstrad CPC (464 / 6128)
+# Suite de tests matériels Amstrad CPC (464 / 6128 / Plus)
 
 Programmes de diagnostic en Z80 (assembleur **RASM**) pour localiser une panne : RAM, Gate Array, Z80, bus, alimentation, RAM d'extension (y compris émulée, par ex. PicoCPC).
 
@@ -11,6 +11,8 @@ Programmes de diagnostic en Z80 (assembleur **RASM**) pour localiser une panne :
 | BURSTTEST | `bursttest.asm` | accès bus à vitesse max (LDI, PUSH, POP, OUT, PSG) | [BURSTTEST.md](BURSTTEST.md) |
 | Z80TEST | `z80test.asm` | jeu d'instructions Z80 + stabilité à 100 % | [Z80TEST.md](Z80TEST.md) |
 | PWRTEST | `pwrtest.asm` | alimentation sous charge maximale et pulsée | [PWRTEST.md](PWRTEST.md) |
+| DSKTEST | `dsktest.asm` + `mkdsktest.py` | accès disquette, cas limites (formats exotiques, effacés, CRC, overrun…) sur `DSKTEST.DSK`, lecture seule | [DSKTEST.md](DSKTEST.md) |
+| CARTTEST | `carttest.asm` via `cart128/256/512.asm` | cartouche CPR exécutée depuis la cartouche : lecture, exécution M1, `&DF`, RMR2, interruptions | [CARTTEST.md](CARTTEST.md) |
 | (bibliothèque) | `cpclib.asm` | affichage mode 2, accès AY — inclus par tous sauf RAMTEST | [CPCLIB.md](CPCLIB.md) |
 
 ## Assemblage
@@ -25,6 +27,9 @@ rasm gatest.asm         -> GATEST.BIN
 rasm bursttest.asm      -> BURSTTEST.BIN
 rasm z80test.asm        -> Z80TEST.BIN
 rasm pwrtest.asm        -> PWRTEST.BIN
+rasm dsktest.asm        -> DSKTEST.BIN
+python3 mkdsktest.py DSKTEST.BIN DSKTEST.DSK
+rasm cart128.asm        -> CART128.CPR  (idem cart256, cart512)
 ```
 
 Pas d'option `-ob` : la directive `save` en fin de source écrit le binaire avec son en-tête AMSDOS.

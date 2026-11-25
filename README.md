@@ -1,6 +1,6 @@
 # CPC HW Test — suite de diagnostic matériel Amstrad CPC
 
-Programmes de diagnostic en assembleur Z80 (**RASM**) pour localiser une panne sur **Amstrad CPC 464 / 6128** : RAM de base, RAM paginée et extensions (y compris émulées, par ex. **PicoCPC**), Gate Array, Z80, bus et alimentation.
+Programmes de diagnostic en assembleur Z80 (**RASM**) pour localiser une panne sur **Amstrad CPC 464 / 6128 / Plus** : RAM de base, RAM paginée et extensions (y compris émulées, par ex. **PicoCPC**), Gate Array, Z80, bus, alimentation, et accès aux périphériques émulés (disquette, cartouche).
 
 Chaque test tourne **sans le firmware** (DI ou interruptions maîtrisées, ROM basse et haute coupées) pour voir le vrai matériel, et boucle indéfiniment. On en sort par un **reset**.
 
@@ -15,9 +15,11 @@ Chaque test tourne **sans le firmware** (DI ou interruptions maîtrisées, ROM b
 | **BURSTTEST** | `src/bursttest.asm` | **Accès bus à vitesse maximale** dans la RAM de base, façon démo, interruptions coupées.<br>• **LDI déroulés** : 4 096 LDI copient 4 Ko `#4000` → `#5000`, puis comparaison<br>• **PUSH blast** : 6 144 PUSH déroulés remplissent `#9000`–`#BFFF` (le motif 16 bits change à chaque boucle), puis 6 144 POP relisent et comparent<br>• **Lecture POP** : 2 048 POP font la somme de la source, comparée à la référence<br>• **Rafales d'OUT** : GA (encres 2–15, mode) et CRTC (R12/R13) réécrits avec les mêmes valeurs<br>• **PSG** : registres 0–7, 11 et 12 de l'AY écrits avec des valeurs aléatoires puis **relus** via le PPI (volumes à 0 : silencieux)<br>Un compteur d'erreurs par catégorie ; bord rouge dès qu'un compteur n'est plus nul. | [doc/BURSTTEST.md](doc/BURSTTEST.md) |
 | **Z80TEST** | `src/z80test.asm` | **Jeu d'instructions et stabilité du Z80** à 100 % de charge (interruptions coupées). Chaque groupe produit une **signature 32 bits** des résultats et des drapeaux (bits 3 et 5 de F masqués) :<br>• **1 – ALU 8 bits** : ADD, ADC, SUB, SBC, AND, XOR, OR, CP × 256 × 256, retenue 0 et 1 (655 360 opérations)<br>• **2 – Unaires** : DAA, CPL, NEG, rotations, décalages, INC, DEC, CCF, SCF × 256 valeurs × 8 combinaisons C/N/H<br>• **3 – Préfixe CB** : les 32 opcodes CB sur A (dont SLL non documenté), code auto-modifiant<br>• **4 – Arithmétique 16 bits** : ADD / ADC / SBC HL,BC sur 16 384 paires aléatoires<br>• **5 – Instructions de bloc** : LDIR, LDDR, CPIR, CPDR sur 1 Ko (registres, drapeaux, contenu)<br>• **6 – IX/IY et échanges** : adressage indexé ±d, EX (SP),IX, EXX, EX AF,AF', RLD, RRD<br>• **7 – Multiplication** 16×16 → 32 bits sur 2 048 paires<br>La passe 1 sert de référence : toute signature différente ensuite = erreur. Les signatures de la passe 1 peuvent être comparées à celles d'un émulateur précis. | [doc/Z80TEST.md](doc/Z80TEST.md) |
 | **PWRTEST** | `src/pwrtest.asm` | **Alimentation sous charge maximale**, à observer à l'oscilloscope sur le 5 V de la carte.<br>• **Moteur K7** : bit 4 du port C du PPI (appuyer sur PLAY sans cassette)<br>• **Son** : 3 voies AY en carré à ~110 Hz, en phase, volume 15<br>• **CPU + RAM** : 8 192 PUSH (16 Ko), LDIR de 16 Ko vers l'écran, relecture par 8 192 POP, mots `#FF00` / `#00FF` (chaque ligne de données bascule à chaque accès)<br>• **Écran** : 16 encres et bord en blanc vif<br>• **Deux régimes** alternés toutes les ~8 s : charge **fixe**, puis charge **pulsée** à ~2 Hz (moteur et son coupés et rallumés)<br>Arrêt avec bord rouge si la RAM perd une donnée sous charge. | [doc/PWRTEST.md](doc/PWRTEST.md) |
+| **DSKTEST** | `src/dsktest.asm`<br>`src/mkdsktest.py` | **Accès disquette, cas limites** (contrôleur µPD765 réel ou émulé, PicoCPC…), en **lecture seule**, sur la disquette de test `DSKTEST.DSK` au contenu connu. Le contrôleur est piloté directement ; chaque attente a un délai maximum (un contrôleur bloqué est compté comme erreur, la machine ne se fige pas).<br>• **1 – Recalibrage et seek** (pistes 0 à 41, PCN vérifié)<br>• **2–3 – Lecture standard** 9 × 512, piste entière en une commande, 4 fois de suite à vitesse maximale (boucle façon chargeur de démo)<br>• **4 – 10 secteurs** par piste · **5 – Tailles** 128 à 2048 · **6 – Secteur de 4 Ko**<br>• **7 – IDs non standard** : C ≠ piste, C/H/R = `#FF`, H = 1, R = 0…<br>• **8 – Secteurs effacés** (READ DATA / READ DELETED DATA, bit CM)<br>• **9 – Erreur CRC simulée** · **A – Secteur inexistant** · **B – Piste non formatée** · **C – READ ID**<br>• **D – Pistes 40 et 41** · **E – Overrun** (lecture trop lente) · **F – Commande invalide**<br>Données vérifiées octet par octet, octets d'état ST0–ST2 comparés à ceux d'un vrai 765. Deux colonnes : **ERREURS** (accès faux) et **INFO** (écart de conformité sans danger pour les logiciels courants). | [doc/DSKTEST.md](doc/DSKTEST.md) |
+| **CARTTEST** | `src/carttest.asm`<br>`src/cart128/256/512.asm` | **Cartouche (CPR)**, pour les plantages aléatoires des cartouches émulées sur CPC+ (Pang, Sonic…). Le test **est une cartouche** : il démarre seul et s'exécute depuis la cartouche, interruptions actives, comme un jeu. Trois tailles : 128 Ko (cartouches d'origine), 256 Ko, 512 Ko (maximum adressable).<br>• **1 – Signatures** : carte des 32 pages `&DF #80`–`#9F` (présente / miroir / absente), stable d'une passe à l'autre<br>• **2 – Lecture** `LD A,(HL)` de toutes les données ; page 0 : vue ROM basse = vue ROM haute<br>• **3 – Rafales** : LDI déroulés et somme par POP<br>• **4 – Exécution depuis la cartouche** (cycles M1) à 4 adresses par page, aussi juste après un `OUT &DF`<br>• **5 – Commutation rapide** : `OUT &DF` puis lecture immédiate, une page différente à chaque octet<br>• **6 – RMR2** (CPC+) : pages 0–7 en ROM basse à `#0000`, `#4000` et `#8000`<br>• **7 – Mappage `&DF` 0 / 7** (CPC+)<br>• **8 – Interruptions** : 6 par trame, avec la routine d'interruption dans la cartouche<br>Le test continue après une erreur ; la ligne **EN COURS** indique ce qui tournait en cas de plantage. Sur un CPC sans ASIC, les tests 6 et 7 sont sautés. | [doc/CARTTEST.md](doc/CARTTEST.md) |
 | *(bibliothèque)* | `src/cpclib.asm` | Pas un test : routines communes (affichage mode 2 avec la fonte de la ROM, hexadécimal, attente, lecture et écriture de l'AY via le PPI), incluses par tous les tests sauf RAMTEST. | [doc/CPCLIB.md](doc/CPCLIB.md) |
 
-Les binaires prêts à l'emploi (avec en-tête AMSDOS) sont dans [`build/`](build/).
+Les binaires prêts à l'emploi (avec en-tête AMSDOS), la disquette de test `DSKTEST.DSK` et les cartouches `CART128/256/512.CPR` sont dans [`build/`](build/), et aussi dans les [releases](../../releases).
 
 ## Lancement
 
@@ -28,6 +30,10 @@ MEMORY &7FFF:LOAD"MEMTEST.BIN",&8000:CALL &8000
 ```
 
 Tous les programmes se chargent et s'exécutent en `&8000`.
+
+Deux exceptions :
+- **DSKTEST** : mettre `DSKTEST.DSK` dans le lecteur A: puis `RUN"DSKTEST.BIN"` (le programme est sur la disquette).
+- **CARTTEST** : charger `CART512.CPR` (ou 128 / 256) comme une cartouche (PicoCPC : `CCAT` / `CRUN`) ; il démarre seul.
 
 ## Lecture des résultats
 
@@ -44,14 +50,18 @@ Tous les programmes se chargent et s'exécutent en `&8000`.
 5. **Z80TEST** (comparer aussi les signatures de la passe 1 avec un émulateur précis : ACE-DL, CPCEC…)
 6. **PWRTEST** (avec un oscilloscope sur le 5 V **de la carte**)
 
+Pour les problèmes de périphériques émulés (PicoCPC…) : **DSKTEST** (disquette) et **CARTTEST** (cartouche, CPC+).
+
 ## Assemblage
 
 Il faut [RASM](https://github.com/EdouardBERGE/rasm) (testé avec la v3.3.0). La directive `save` en fin de source écrit le binaire avec son en-tête AMSDOS : pas besoin d'option `-ob`.
 
 ```sh
 cd src
-for f in ramtest464 memtest leaktest gatest bursttest z80test pwrtest; do rasm $f.asm; done
-mv *.BIN ../build/
+for f in ramtest464 memtest leaktest gatest bursttest z80test pwrtest dsktest; do rasm $f.asm; done
+for n in 128 256 512; do rasm cart$n.asm; done      # cartouches CARTTEST
+python3 mkdsktest.py DSKTEST.BIN DSKTEST.DSK       # disquette de test (après dsktest)
+mv *.BIN *.CPR DSKTEST.DSK ../build/
 ```
 
 | Source | Binaire |
@@ -63,8 +73,10 @@ mv *.BIN ../build/
 | `bursttest.asm` | `BURSTTEST.BIN` |
 | `z80test.asm` | `Z80TEST.BIN` |
 | `pwrtest.asm` | `PWRTEST.BIN` |
+| `dsktest.asm` + `mkdsktest.py` | `DSKTEST.BIN`, `DSKTEST.DSK` |
+| `cart128.asm` / `cart256.asm` / `cart512.asm` (incluent `carttest.asm` et `cartfont.asm`) | `CART128.CPR` / `CART256.CPR` / `CART512.CPR` |
 
-`cpclib.asm` doit se trouver dans le même dossier : il est inclus **à la fin** de chaque source.
+`cpclib.asm` doit se trouver dans le même dossier : il est inclus **à la fin** de chaque source (sauf RAMTEST et CARTTEST, qui n'utilisent pas le firmware ni sa fonte). `mkdsktest.py` demande Python 3, sans module externe.
 
 > **Note :** `BURSTTEST` dépasse 8 caractères. RASM tronque donc le nom dans l'en-tête AMSDOS (`BURSTTES.BIN`). Sur une disquette AMSDOS, utiliser un nom de 8 caractères au maximum.
 
@@ -72,11 +84,12 @@ mv *.BIN ../build/
 
 - MEMTEST couvre 512 Ko au maximum (port `&7Fxx` seul). Les extensions de 1 à 4 Mo, qui utilisent les bits d'adresse A8–A10, ne sont pas couvertes. Le mode C2 n'est pas testé.
 - BURSTTEST ne travaille que dans la RAM de base : les rafales sur l'extension sont faites par MEMTEST (test 09).
+- DSKTEST et CARTTEST n'ont pas encore été validés sur machine ni dans un émulateur : leur contenu (disquette, cartouches) a été vérifié par des scripts indépendants. Voir la section « Limites et validation » de leur documentation.
 
 ## Arborescence
 
 ```
-src/    sources RASM (.asm)
-build/  binaires AMSDOS compilés (.BIN)
+src/    sources RASM (.asm) et générateur de la disquette de test (mkdsktest.py)
+build/  binaires AMSDOS (.BIN), cartouches (.CPR), disquette de test (.DSK)
 doc/    documentation détaillée de chaque test
 ```
