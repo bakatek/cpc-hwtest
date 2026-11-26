@@ -38,6 +38,32 @@ Historique :
   4. le handler lève RAMDIS si la zone est servie par la picoCPC ;
   5. le core1 attend la fin du cycle (boucle en `0x20080020`), relâche RAMDIS et recommence.
 
+### La boucle du core1, désassemblée (firmware du 21/11, code copié en RAM à 0x20080000)
+
+```
+          mov.w r2, #0x60000000         @ masque : IORQ (bit 29) | MREQ (bit 30)
+20080020: mrc   p0,#0,r3,c0,c8,#0       @ lit GPIO0-31
+          tst   r2, r3
+          bne   20080020                @ ATTEND QUE MREQ/IORQ RETOMBENT (fin du cycle)
+20080028: mcrr / mcr ...                @ remet le mux, efface ROMDIS/RAMDIS (GPIO2-3)
+20080052: mrc   p0,#0,r0,c0,c8,#0
+          tst   r0, #0xF0000000         @ attend un signal parmi RFSH/IORQ/MREQ/RD
+          beq   20080052                @ (début de cycle)
+2008005c: mrc   p0,#0,r0,c0,c8,#0       @ RELIT une fois pour classer le cycle
+          ubfx  r5, r0, #28, #4         @ RD|MREQ|IORQ|RFSH
+          cmp   r5, #0xC  -> lecture    (MREQ + RD)
+          cmp   r5, #0x4  -> écriture   (MREQ sans RD : « pas Read = Write »)
+          cmp   r5, #0x2  -> OUT        (IORQ sans RD)
+          cmp   r5, #0xA  -> IN         (IORQ + RD)
+          sinon (ex. 0x5 = rafraîchissement) -> ignoré, retour en 20080020
+```
+
+Après un handler, le masque devient `0xE0000000` (RD en plus). Le core1 attend donc bien que
+les signaux du cycle retombent avant d'en chercher un nouveau. Un parasite, qu'il soit lu à
+l'attente de fin (`20080020`) ou à la relecture de classement (`2008005c`), lui fait mal
+découper ou mal classer le cycle. Il ressort alors trop tôt, se remet en détection et traite le
+vrai cycle plus tard. Le §4 montre le cas mesuré : un creux de MREQ lu en `20080020`.
+
 ## 3. La méthode : mesurer au lieu de deviner
 
 Les premières tentatives étaient des corrections « à l'aveugle » et ont échoué. Le tableau du
