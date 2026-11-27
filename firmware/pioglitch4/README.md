@@ -4,8 +4,7 @@ Firmware de **test** pour la carte PicoCPC (RP2350B). Les programmes [GLITCH](..
 
 | Fichier | Contenu |
 |---|---|
-| `20261121-1.02-PicoCPC-sp1819-pioglitch4.uf2` | Firmware PicoCPC 1.02 (sp1819) avec le correctif **debounce1** et l'analyseur de rebonds. **À utiliser par défaut.** |
-| `20261121-1.02-PicoCPC-sp1819-pioglitch4-orig.uf2` | Même test, mais RAMDIS piloté **comme le firmware d'origine**, sans debounce1. Ne sert qu'à comparer les deux sur la même machine. **Sur un 464, il a le bug d'origine des fuites de RAM d'extension** : uniquement pour le test. |
+| `20261121-1.02-PicoCPC-sp1819-pioglitch4.uf2` | Firmware PicoCPC 1.02 (sp1819) avec le correctif **debounce1** et l'analyseur de rebonds. |
 
 ## Ce que le firmware ajoute
 - **Analyseur PIO** sur GPIO0-31 : un échantillon toutes les 11,1 ns, anneau DMA de 91 µs. L'automate du bus continue de tourner pendant la mesure.
@@ -37,3 +36,5 @@ Laisser GLITCH tourner au moins 200 passes, puis photographier l'écran.
 ## Validation
 - **En émulation** (code ARM réel, sur des traces de 464 et de 6128) : tous les compteurs, y compris la position des rebonds par rapport au cycle Z80, sont identiques à une référence Python, rebonds injectés compris. Le test du port et le mode ombre passent.
 - **Sur machine (464, 26/11/2026)** : le correctif debounce1 a été validé par LEAKTEST, 10 minutes sans fuite. L'affichage v4 de GLITCH n'a pas encore été relevé sur machine.
+
+Une variante `-orig`, avec le RAMDIS d'origine **sans debounce**, a servi aux comparaisons pendant la mise au point. Elle n'est pas fournie : elle a le bug des fuites de RAM d'extension.
