@@ -38,3 +38,6 @@ Laisser GLITCH tourner au moins 200 passes, puis photographier l'écran.
 - **Sur machine (464, 26/11/2026)** : le correctif debounce1 a été validé par LEAKTEST, 10 minutes sans fuite. L'affichage v4 de GLITCH n'a pas encore été relevé sur machine.
 
 Une variante `-orig`, avec le RAMDIS d'origine **sans debounce**, a servi aux comparaisons pendant la mise au point. Elle n'est pas fournie : elle a le bug des fuites de RAM d'extension.
+
+## Pour un autre firmware
+[AJOUTER_AU_FIRMWARE.md](AJOUTER_AU_FIRMWARE.md) explique comment ajouter la même capture à son propre firmware PicoCPC : commandes, PIO, DMA, analyse, format du résultat.
