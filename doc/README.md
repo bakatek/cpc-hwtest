@@ -14,6 +14,8 @@ Programmes de diagnostic en Z80 (assembleur **RASM**) pour localiser une panne :
 | PWRTEST | `pwrtest.asm` | alimentation sous charge maximale et pulsée | [PWRTEST.md](PWRTEST.md) |
 | DSKTEST | `dsktest.asm` + `mkdsktest.py` | accès disquette, cas limites (formats exotiques, effacés, CRC, overrun…) sur `DSKTEST.DSK`, lecture seule | [DSKTEST.md](DSKTEST.md) |
 | CARTTEST | `carttest.asm` via `cart128/256/512.asm` | cartouche CPR exécutée depuis la cartouche : lecture, exécution M1, `&DF`, RMR2, interruptions | [CARTTEST.md](CARTTEST.md) |
+| GLITCH / GLITCH256 | `glitch.asm`, `glitch256.asm` | rebonds sur les entrées du RP2350B de la PicoCPC (firmware de test `pioglitch4`) | [GLITCH.md](GLITCH.md) |
+| PINMAP | `pinmap.asm` | fonction et sens des 48 GPIO du RP2350B de la PicoCPC (firmware `pioglitch4`) | [PINMAP.md](PINMAP.md) |
 | (bibliothèque) | `cpclib.asm` | affichage mode 2, accès AY — inclus par tous sauf RAMTEST | [CPCLIB.md](CPCLIB.md) |
 
 ## Assemblage
@@ -30,6 +32,9 @@ rasm bursttest.asm      -> BURSTTEST.BIN
 rasm z80test.asm        -> Z80TEST.BIN
 rasm pwrtest.asm        -> PWRTEST.BIN
 rasm dsktest.asm        -> DSKTEST.BIN
+rasm glitch.asm         -> GLITCH.BIN
+rasm glitch256.asm      -> GLITCH256.BIN
+rasm pinmap.asm         -> PINMAP.BIN
 python3 mkdsktest.py DSKTEST.BIN DSKTEST.DSK
 rasm cart128.asm        -> CART128.CPR  (idem cart256, cart512)
 ```

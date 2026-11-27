@@ -6,7 +6,7 @@ Source : `src/glitch.asm`. Binaire : `build/GLITCH.BIN`.
 MEMORY &7FFF:LOAD"GLITCH.BIN",&8000:CALL &8000
 ```
 
-**Il faut le firmware de test PicoCPC `pioglitch4`.** Sans lui, le programme affiche « Firmware sans test de rebonds v3 ».
+**Il faut le firmware de test PicoCPC `pioglitch4`**, fourni dans [`firmware/pioglitch4/`](../firmware/pioglitch4/README.md). Sans lui, le programme affiche « Firmware sans test de rebonds v3 ».
 
 ## Pourquoi
 
