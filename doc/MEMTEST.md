@@ -50,7 +50,7 @@ Puis, toujours sur la page :
 |---|---|---|
 | 06 | croisé | toutes les pages remplies (LFSR propre à chaque page), puis toutes relues → écriture dans la mauvaise page |
 | 07 | commutation rapide | pour chaque octet : `OUT` vers chaque page puis écriture **immédiate** ; même chose en lecture |
-| 08 | modes C1 / C3 | la page 3 de l'extension doit apparaître en #C000 (C1 et C3) ; en C3, #4000 doit montrer la page de base 3 (l'écran). C2 n'est pas testé (il remplacerait le programme) |
+| 08 | modes C1 / C3 | la page 3 de l'extension doit apparaître en #C000 (C1 et C3) ; en C3, #4000 doit montrer la page de base 3 (l'écran). C2 n'est pas testé (il remplacerait le programme). Écriture C3 relue en C0, écriture sous la ROM haute et exécution en C1/C3 : voir [MAPTEST](MAPTEST.md) |
 
 ## Écran d'erreur
 N° de test (hexa) et nom, **config &7F** au moment de l'erreur, **adresse**, attendu, lu, XOR, **page testée**, passe.

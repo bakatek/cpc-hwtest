@@ -7,6 +7,7 @@ Programmes de diagnostic en Z80 (assembleur **RASM**) pour localiser une panne :
 | RAMTEST | `ramtest464.asm` | les 64 Ko de base, 100 % des adresses | [RAMTEST.md](RAMTEST.md) |
 | MEMTEST | `memtest.asm` | toute la RAM paginée / extensions (jusqu'à 512 Ko), fuites, rafales, exécution | [MEMTEST.md](MEMTEST.md) |
 | LEAKTEST | `leaktest.asm` | fuites extension → RAM interne, scénario par scénario (PUSH, LDI, OUT + écriture immédiate…) | [LEAKTEST.md](LEAKTEST.md) |
+| MAPTEST | `maptest.asm` | configurations C1 / C3 (écriture C3 relue en C0 et inversement, C3 émulé sur 464), écriture page 7 sous ROM haute, exécution en C1 / C3 | [MAPTEST.md](MAPTEST.md) |
 | GATEST | `gatest.asm` | Gate Array : interruptions, OUT, pagination ROM, HALT | [GATEST.md](GATEST.md) |
 | BURSTTEST | `bursttest.asm` | accès bus à vitesse max (LDI, PUSH, POP, OUT, PSG) | [BURSTTEST.md](BURSTTEST.md) |
 | Z80TEST | `z80test.asm` | jeu d'instructions Z80 + stabilité à 100 % | [Z80TEST.md](Z80TEST.md) |
@@ -23,6 +24,7 @@ Tous les fichiers dans le même dossier, puis :
 rasm ramtest464.asm     -> RAMTEST.BIN
 rasm memtest.asm        -> MEMTEST.BIN
 rasm leaktest.asm       -> LEAKTEST.BIN
+rasm maptest.asm        -> MAPTEST.BIN
 rasm gatest.asm         -> GATEST.BIN
 rasm bursttest.asm      -> BURSTTEST.BIN
 rasm z80test.asm        -> Z80TEST.BIN
